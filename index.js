@@ -174,12 +174,10 @@ function formatSubtitle(metadata) {
 
 function notifySlack(imageUrl, payload, location, action) {
   let locationText = '';
-  let locationIP = '';
-
+  
   if (location) {
     const state = location.country_code === 'US' ? location.region_name : location.country_name;
     locationText = `near ${location.city}, ${state}`;
-    locationIP = `IP: ${location}`;
   }
 
   slack.webhook({
@@ -194,12 +192,12 @@ function notifySlack(imageUrl, payload, location, action) {
       fields:  [
                 {
                     "title": "IP Address",
-                    "value": locationIP,
+                    "value": payload.Player.publicAddress,
                     "short": false
                 }
             ],
       thumb_url: imageUrl,
-      footer: `${action} by ${payload.Account.title} on ${payload.Player.title} from ${payload.Server.title} ${locationText}`,
+      footer: `${action} by ${payload.Account.title} on ${payload.Player.title} from ${payload.Server.title} ${locationText}(${payload.Player.publicAddress})`,
       footer_icon: payload.Account.thumb
     }]
   }, () => {});
