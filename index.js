@@ -80,7 +80,7 @@ app.post('/', upload.single('thumb'), async(req, res, next) => {
       for (var i = 0; i < payload.rating / 2; i++) {
         action += ':star:';
       }
-    } else if (payload.event === 'media.play' {
+    } else if (payload.event === 'media.play') {
       action = 'playing';
     } else {
       action = 'unrated';
