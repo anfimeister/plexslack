@@ -68,7 +68,7 @@ app.post('/', upload.single('thumb'), async(req, res, next) => {
   }
 
   // post to slack
-  if ((payload.event === 'media.scrobble' && isVideo) || payload.event === 'media.rate') {
+  if ((payload.event === 'media.scrobble' && isVideo) || (payload.event === 'media.play' && isVideo) || payload.event === 'media.rate') {
     const location = await getLocation(payload.Player.publicAddress);
 
     let action;
@@ -80,6 +80,8 @@ app.post('/', upload.single('thumb'), async(req, res, next) => {
       for (var i = 0; i < payload.rating / 2; i++) {
         action += ':star:';
       }
+    } else if (payload.event === 'media.play' {
+      action = 'playing';
     } else {
       action = 'unrated';
     }
@@ -172,10 +174,12 @@ function formatSubtitle(metadata) {
 
 function notifySlack(imageUrl, payload, location, action) {
   let locationText = '';
+  let locationIP = '';
 
   if (location) {
     const state = location.country_code === 'US' ? location.region_name : location.country_name;
     locationText = `near ${location.city}, ${state}`;
+    locationIP = `IP: ${location}`;
   }
 
   slack.webhook({
@@ -187,6 +191,13 @@ function notifySlack(imageUrl, payload, location, action) {
       color: '#a67a2d',
       title: formatTitle(payload.Metadata),
       text: formatSubtitle(payload.Metadata),
+      fields:  [
+                {
+                    "title": "IP Address",
+                    "value": locationIP,
+                    "short": false
+                }
+            ],
       thumb_url: imageUrl,
       footer: `${action} by ${payload.Account.title} on ${payload.Player.title} from ${payload.Server.title} ${locationText}`,
       footer_icon: payload.Account.thumb
